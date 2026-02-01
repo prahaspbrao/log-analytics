@@ -7,6 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model ApiKey {
+  id          String   @id @default(uuid())
+  serviceName String   @unique
+  apiKey      String   @unique
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
 model Log {
   id          String   @id @default(uuid())
   serviceName String

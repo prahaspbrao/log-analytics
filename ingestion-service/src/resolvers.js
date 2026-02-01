@@ -1,42 +1,37 @@
-const getPrisma = require("./config");
-const { validateLog } = require("./validators");
-const { validateApiKey } = require("./authClient");
+const prisma = require("../../prisma/client");
 
 module.exports = {
+  Query: {
+    _health: () => "OK",
+  },
+
   Mutation: {
-    ingestLog: async (_, args, context) => {
-      if (!context.apiKey) throw new Error("API key missing");
-
-      const isValid = await validateApiKey(context.apiKey);
-      if (!isValid) throw new Error("Invalid API key");
-
-      validateLog(args);
-
-      const prisma = getPrisma();
+    ingestLog: async (_, args) => {
       await prisma.log.create({
-        data: { ...args, timestamp: new Date(args.timestamp) },
+        data: {
+          ...args,
+          timestamp: new Date(args.timestamp),
+        },
       });
 
-      return { success: true, message: "Log stored successfully" };
+      return {
+        success: true,
+        message: "Log ingested successfully",
+      };
     },
 
-    ingestLogs: async (_, { logs }, context) => {
-      if (!context.apiKey) throw new Error("API key missing");
-
-      const isValid = await validateApiKey(context.apiKey);
-      if (!isValid) throw new Error("Invalid API key");
-
-      logs.forEach(validateLog);
-
-      const prisma = getPrisma();
+    ingestLogs: async (_, { logs }) => {
       await prisma.log.createMany({
-        data: logs.map((l) => ({
-          ...l,
-          timestamp: new Date(l.timestamp),
+        data: logs.map((log) => ({
+          ...log,
+          timestamp: new Date(log.timestamp),
         })),
       });
 
-      return { success: true, message: "Logs stored successfully" };
+      return {
+        success: true,
+        message: "Logs ingested successfully",
+      };
     },
   },
 };

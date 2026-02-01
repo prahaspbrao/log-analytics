@@ -1,3 +1,4 @@
+version: "3.9"
 
 services:
   postgres:
@@ -22,6 +23,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
       PORT: 4001
+    volumes:
+      - ./prisma:/prisma
     depends_on:
       - postgres
 
@@ -34,6 +37,8 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
       PORT: 4002
+    volumes:
+      - ./prisma:/prisma
     depends_on:
       - postgres
 

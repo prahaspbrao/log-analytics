@@ -1,6 +1,7 @@
 const express = require("express");
 const { ApolloServer } = require("apollo-server-express");
 const cors = require("cors");
+const apiKeyAuth = require("./middleware/apiKeyAuth.js")
 
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
@@ -15,6 +16,9 @@ async function startServer() {
   app.get("/health", (_, res) =>
     res.json({ status: "Ingestion service healthy" })
   );
+
+  // 🔒 PROTECT GRAPHQL ENDPOINT
+  app.use("/graphql", apiKeyAuth);
 
   const server = new ApolloServer({
     typeDefs,
@@ -32,5 +36,6 @@ async function startServer() {
     console.log(`📥 Ingestion Service running on port ${PORT}`)
   );
 }
+
 
 startServer();
