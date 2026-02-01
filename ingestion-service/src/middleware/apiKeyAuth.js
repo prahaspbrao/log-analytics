@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 module.exports = async function apiKeyAuth(req, res, next) {
+
   const apiKey = req.headers["x-api-key"];
 
   if (!apiKey) {

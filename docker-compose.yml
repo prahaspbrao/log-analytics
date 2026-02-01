@@ -14,6 +14,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7
+    container_name: log-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
   ingestion-service:
     build: ./ingestion-service
     container_name: ingestion-service
@@ -23,10 +30,11 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
       PORT: 4001
-    volumes:
-      - ./prisma:/prisma
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
       - postgres
+      - redis
 
   auth-service:
     build: ./auth-service
@@ -37,8 +45,6 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
       PORT: 4002
-    volumes:
-      - ./prisma:/prisma
     depends_on:
       - postgres
 

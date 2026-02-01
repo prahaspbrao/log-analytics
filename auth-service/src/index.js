@@ -5,6 +5,9 @@ const cors = require("cors");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 
+// 🔽 ADD THIS
+const validateApiKey = require("./routes/validateApiKey");
+
 async function startServer() {
   console.log("🚀 Starting Auth Service...");
 
@@ -15,6 +18,9 @@ async function startServer() {
   app.get("/health", (req, res) => {
     res.status(200).json({ status: "Auth service healthy" });
   });
+
+  // 🔽 ADD THIS (internal REST endpoint)
+  app.post("/internal/validate-api-key", validateApiKey);
 
   const server = new ApolloServer({
     typeDefs,
