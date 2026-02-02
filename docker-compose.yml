@@ -30,8 +30,8 @@ services:
     image: postgres:15
     container_name: postgres
     environment:
-      POSTGRES_USER: loguser
-      POSTGRES_PASSWORD: logpassword
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       POSTGRES_DB: log_analytics
     ports:
       - "5432:5432"
@@ -50,6 +50,25 @@ services:
       - redis_data:/data
     networks:
       - log-network
+  
+
+  log-processor-service:
+    build: ./log-processor-service
+    container_name: log-processor-service
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      LOG_STREAM: logs-stream
+      CONSUMER_GROUP: log-processors
+      CONSUMER_NAME: processor-1
+    depends_on:
+      - postgres
+      - redis
+    networks:
+    - log-network
+  
 
 volumes:
   postgres_data:
