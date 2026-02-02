@@ -5,7 +5,7 @@ services:
     build: ./ingestion-service
     container_name: ingestion-service
     ports:
-      - "3000:3000"
+      - "4001:4001"
     env_file:
       - ./ingestion-service/.env
     depends_on:
