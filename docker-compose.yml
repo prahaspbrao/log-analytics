@@ -1,52 +1,60 @@
 version: "3.9"
 
 services:
+  ingestion-service:
+    build: ./ingestion-service
+    container_name: ingestion-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./ingestion-service/.env
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - log-network
+
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "4002:4002"
+    env_file:
+      - ./auth-service/.env
+    depends_on:
+      - postgres
+    networks:
+      - log-network
+
   postgres:
     image: postgres:15
-    container_name: log-postgres
-    restart: always
+    container_name: postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: loguser
+      POSTGRES_PASSWORD: logpassword
       POSTGRES_DB: log_analytics
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - log-network
 
   redis:
     image: redis:7
-    container_name: log-redis
-    restart: always
+    container_name: redis
     ports:
       - "6379:6379"
-
-  ingestion-service:
-    build: ./ingestion-service
-    container_name: ingestion-service
-    restart: always
-    ports:
-      - "4001:4001"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
-      PORT: 4001
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-    depends_on:
-      - postgres
-      - redis
-
-  auth-service:
-    build: ./auth-service
-    container_name: auth-service
-    restart: always
-    ports:
-      - "4002:4002"
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/log_analytics
-      PORT: 4002
-    depends_on:
-      - postgres
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks:
+      - log-network
 
 volumes:
   postgres_data:
+  redis_data:
+
+networks:
+  log-network:
+    driver: bridge
